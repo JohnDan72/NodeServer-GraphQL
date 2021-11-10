@@ -1,7 +1,9 @@
-const { GraphQLObjectType , GraphQLString, GraphQLID } = require('graphql');
-// const { ProfessorType } = require('./professor');
-// static data
-const { professors } = require('../database/data');
+const { GraphQLObjectType , GraphQLString, GraphQLID, GraphQLBoolean } = require('graphql');
+// // static data
+// const { professors } = require('../database/data');
+
+// models
+const Professor = require('./mongoSchemas/professor');
 
 const CourseType = new GraphQLObjectType({
     name: 'Course',
@@ -10,11 +12,11 @@ const CourseType = new GraphQLObjectType({
         name: {type: GraphQLString},
         language: {type: GraphQLString},
         date: {type: GraphQLString},
-        professorId: {type: GraphQLID},
+        status: { type: GraphQLBoolean},
         professor: { //like populate
             type: require('./professor').ProfessorType,
             resolve(parent , args){
-                return professors.find( profe => profe.id === parent.professorId)
+                return Professor.findById( parent.professorId );
             }
         }
     })

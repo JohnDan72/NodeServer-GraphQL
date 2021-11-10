@@ -2,27 +2,30 @@ const express = require('express');
 const cors = require('cors');
 const router = require('../routes/profesores.routes');
 
-const schema = require('../models/course');
+const schema = require('../database/config');
 const { graphqlHTTP } = require('express-graphql');
+const { dbConnection } = require('../database/mongodb');
 
 class Server{
     constructor(){
         this.app = express();
         this.endpoints = {
-            profesores: '/api/profes'
+            profesores: '/api/cursos_db'
         }
 
+        this.conectarMongoDB();
         this.middlewares();
         this.routes();
     }
 
     middlewares(){
-        // cors
-        this.app.use(cors());
-        // parse to json
-        this.app.use(express.json());
-        // public dir static
-        this.app.use(express.static("public"));
+        this.app.use(cors()); // cors
+        this.app.use(express.json()); // parse to json
+        this.app.use(express.static("public")); // public dir static
+    }
+
+    async conectarMongoDB(){
+        await dbConnection();
     }
 
     routes(){

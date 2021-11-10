@@ -3,6 +3,10 @@ const { CourseType } = require("../models/course");
 const { ProfessorType } = require("../models/professor");
 const { UserType } = require("../models/user");
 
+// mongoose schema
+const Course = require("../models/mongoSchemas/course");
+const Professor = require("../models/mongoSchemas/professor");
+
 // static data
 const { courses, professors , users } = require("./data");
 
@@ -17,13 +21,15 @@ const RootQuery = new GraphQLObjectType({
                 id: {type: GraphQLString},
             },
             resolve(parent , args){
-                return courses.find( curso => curso.id === args.id );
+                // return courses.find( curso => curso.id === args.id );
+                return Course.findById(args.id);
             }
         },
         courses: {
             type: new GraphQLList(CourseType),
             resolve(parent, args){
-                return courses
+                // return courses
+                return Course.find({status: true});
             }
         },
         // professors
@@ -33,13 +39,15 @@ const RootQuery = new GraphQLObjectType({
                 id: {type: GraphQLString},
             },
             resolve(parent , args){
-                return professors.find( profe => profe.id === args.id );
+                // return professors.find( profe => profe.id === args.id );
+                return Professor.findById(args.id);
             }
         },
         professors: {
             type: new GraphQLList(ProfessorType),
             resolve(parent , args){
-                return professors;
+                // return professors;
+                return Professor.find({status: true});
             }
         },
         // users
@@ -61,6 +69,41 @@ const RootQuery = new GraphQLObjectType({
     }
 });
 
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addCourse: {
+            type: CourseType,
+            args:{
+                name: { type: GraphQLString },
+                language: { type: GraphQLString },
+                professorId: { type: GraphQLID },
+            },
+            resolve(parent , args){
+                const { name , language ,  professorId} = args;
+                const newCourse = new Course({name , language , professorId});
+
+                return newCourse.save();
+                 
+            }
+        },
+        addProfessor: {
+            type: ProfessorType,
+            args: {
+                name: {type: GraphQLString},
+                age: {type: GraphQLInt},
+            },
+            resolve(parent , args){
+                const { name , age } = args;
+                const newProf = new Professor({ name , age });
+
+                return newProf.save();
+            }
+        }
+    }
+})
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: Mutation
 });
