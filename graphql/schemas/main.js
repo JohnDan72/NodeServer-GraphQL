@@ -1,15 +1,17 @@
-const { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLInt, GraphQLBoolean, GraphQLList } = require("graphql");
-const { CourseType } = require("../models/course");
-const { ProfessorType } = require("../models/professor");
-const { UserType } = require("../models/user");
+const { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLID, GraphQLInt, GraphQLList } = require("graphql");
 
-// mongoose schema
-const Course = require("../models/mongoSchemas/course");
-const Professor = require("../models/mongoSchemas/professor");
-const { User } = require("../models/mongoSchemas/user");
+// models
+const { Course } = require("../../models/course");
+const { Professor } = require("../../models/professor");
+const { User } = require("../../models/user");
 
-// static data
-const { courses, professors , users } = require("./data");
+// types
+const { ReadOneResponseType, ReadAllResponseType, CreatedUpdatedResponseType, UpdatedDataType } = require("../types/shared");
+
+// controller functions
+const { getCourseById, getAllCourses, createCourse, updateCourse, deleteCourse } = require("../../controllers/course.controller");
+const { getProfessorById, getAllProfessors, createProfessor, updateProfessor, deleteProfessor } = require("../../controllers/profesores.controller");
+const { getUserById, getAllUsers, createUser, updateUser, deleteUser } = require("../../controllers/users.controller");
 
 
 const RootQuery = new GraphQLObjectType({
@@ -17,56 +19,50 @@ const RootQuery = new GraphQLObjectType({
     fields:{
         // courses
         course: {
-            type: CourseType,
+            type: ReadOneResponseType,
             args: {
                 id: {type: GraphQLString},
             },
             resolve(parent , args){
-                // return courses.find( curso => curso.id === args.id );
-                return Course.findById(args.id);
+                return getCourseById( parent , args );
             }
         },
         courses: {
-            type: new GraphQLList(CourseType),
+            type: ReadAllResponseType,
             resolve(parent, args){
-                // return courses
-                return Course.find({status: true});
+                return getAllCourses( parent , args );
             }
         },
         // professors
         professor: {
-            type: ProfessorType,
+            type: ReadOneResponseType,
             args: {
                 id: {type: GraphQLString},
             },
             resolve(parent , args){
-                // return professors.find( profe => profe.id === args.id );
-                return Professor.findById(args.id);
+                return getProfessorById(parent , args);
             }
         },
         professors: {
-            type: new GraphQLList(ProfessorType),
+            type: ReadAllResponseType,
             resolve(parent , args){
-                // return professors;
-                return Professor.find({status: true});
+                return getAllProfessors(parent , args);
             }
         },
         // users
         user: {
-            type: UserType,
+            type: ReadOneResponseType,
             args: {
                 id: {type: GraphQLString},
             },
             resolve(parent , args){
-                // return users.find( user => user.id === args.id );
-                return User.findOne({status: true, _id: args.id});
+                return getUserById(parent,args);
             }
         },
         users: {
-            type: new GraphQLList(UserType),
+            type: ReadAllResponseType,
             resolve(parent , args){
-                // return users
-                return User.find({status: true});
+                return getAllUsers(parent,args);
             }
         }
     }
@@ -77,117 +73,105 @@ const Mutation = new GraphQLObjectType({
     fields: {
         // COURSES OPERATIONS
         addCourse: {
-            type: CourseType,
+            type: CreatedUpdatedResponseType,
             args:{
                 name: { type: GraphQLString },
                 language: { type: GraphQLString },
                 professorId: { type: GraphQLID },
             },
             resolve(parent , args){
-                const { name , language ,  professorId} = args;
-                const newCourse = new Course({name , language , professorId});
-
-                return newCourse.save();
-                 
+                return createCourse(parent,args);                 
             }
         },
         updateCourse: {
-            type: CourseType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID},
                 name: { type: GraphQLString },
                 language: { type: GraphQLString }
             },
             resolve(parent , args){
-                const { id , name , language } = args;
-                return Course.findByIdAndUpdate(id,{name , language},{ new: true });
+                return updateCourse(parent,args);
             }
         },
         deleteCourse: {
-            type: CourseType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID}
             },
             resolve(parent , args){
-                return Course.findByIdAndUpdate(args.id,{status: false},{new: true});
+                return deleteCourse(parent,args);
             }
         },
         deleteAllCourses: {
-            type: CourseType,
+            type: UpdatedDataType,
             resolve(parent , args){
-                return Course.updateMany({status: true},{status: false},{new: true});
+                return Course.updateMany({status: true},{status: false});
             }
         },
         restoreAllCourses: {
-            type: CourseType,
+            type: UpdatedDataType,
             resolve(parent , args){
-                return Course.updateMany({status: false},{status: true},{new: true});
+                return Course.updateMany({status: false},{status: true});
             }
         },
         // PROFESSORS OPERATIONS
         addProfessor: {
-            type: ProfessorType,
+            type: CreatedUpdatedResponseType,
             args: {
                 name: {type: GraphQLString},
                 age: {type: GraphQLInt},
             },
             resolve(parent , args){
-                const { name , age } = args;
-                const newProf = new Professor({ name , age });
-
-                return newProf.save();
+                return createProfessor(parent,args);
             }
         },
         updateProfessor: {
-            type: ProfessorType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID},
                 name: {type: GraphQLString},
                 age: {type: GraphQLInt},
             },
             resolve(parent , args){
-                const { id , name , age } = args;
-                return Professor.findByIdAndUpdate(id,{name , age},{new: true});
+                return updateProfessor(parent,args);
             }
         },
         deleteProfessor: {
-            type: ProfessorType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID}
             },
             resolve(parent, args){
-                return Professor.findByIdAndUpdate(args.id , {status: false} , {new: true});
+                return deleteProfessor(parent,args);
             }
         },
         deleteAllProfessors: {
-            type: ProfessorType,
+            type: UpdatedDataType,
             resolve(parent , args){
                 return Professor.updateMany({status: true}, {status: false});
             }
         },
         restoreAllProfessors: {
-            type: ProfessorType,
+            type: UpdatedDataType,
             resolve(parent , args){
                 return Professor.updateMany({status: false}, {status: true});
             }
         },
         // USERS OPERATIONS
         addUser: {
-            type: UserType,
+            type: CreatedUpdatedResponseType,
             args: {
                 name: {type: GraphQLString},
                 email: {type: GraphQLString},
                 password: {type: GraphQLString},
             },
             resolve(parent , args){
-                const { name , email , password } = args;
-                const newUser = new User({ name , email , password });
-
-                return newUser.save();
+                return createUser(parent , args);
             }
         },
         updateUser: {
-            type: UserType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID},
                 name: {type: GraphQLString},
@@ -195,27 +179,26 @@ const Mutation = new GraphQLObjectType({
                 password: {type: GraphQLString},
             },
             resolve(parent , args){
-                const { id , name , email , password} = args;
-                return User.findByIdAndUpdate(id,{ name , email , password},{new: true});
+                return updateUser(parent,args);
             }
         },
         deleteUser: {
-            type: UserType,
+            type: CreatedUpdatedResponseType,
             args: {
                 id: {type: GraphQLID}
             },
             resolve(parent, args){
-                return User.findByIdAndUpdate(args.id , {status: false} , {new: true});
+                return deleteUser(parent,args);
             }
         },
         deleteAllUsers: {
-            type: UserType,
+            type: UpdatedDataType,
             resolve(parent , args){
                 return User.updateMany({status: true}, {status: false});
             }
         },
         restoreAllUsers: {
-            type: UserType,
+            type: UpdatedDataType,
             resolve(parent , args){
                 return User.updateMany({status: false}, {status: true});
             }

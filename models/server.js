@@ -1,16 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const router = require('../routes/profesores.routes');
-
-const schema = require('../database/config');
-const { graphqlHTTP } = require('express-graphql');
 const { dbConnection } = require('../database/mongodb');
 
 class Server{
     constructor(){
         this.app = express();
         this.endpoints = {
-            profesores: '/api/cursos_db'
+            cursos_db: '/api/cursos_db'
         }
 
         this.conectarMongoDB();
@@ -29,11 +25,7 @@ class Server{
     }
 
     routes(){
-        this.app.use('/graphql',graphqlHTTP({
-            schema,
-            graphiql: true,
-        }))
-        this.app.use(this.endpoints.profesores,require('../routes/profesores.routes').router)
+        this.app.use(this.endpoints.cursos_db,require('../routes/cursos_db.routes').router)
     }
 
     listen(){

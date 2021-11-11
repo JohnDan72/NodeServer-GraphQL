@@ -1,16 +1,30 @@
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLBoolean } = require("graphql");
+const { Schema, model } = require("mongoose");
 
 
-const UserType = new GraphQLObjectType({
-    name: 'User',
-    fields: () => ({
-        id: {type: GraphQLID},
-        name: {type: GraphQLString},
-        email: {type: GraphQLString},
-        password: {type: GraphQLString},
-        date: {type: GraphQLString},
-        status: {type: GraphQLBoolean}
-    })
+const UserSchema = Schema({
+    name: {
+        type: String,
+        required: [ true , 'name required'],
+    },
+    email: {
+        type: String,
+        required: [ true , 'email required'],
+        unique: true
+    },
+    password: {
+        type: String,
+        required: [ true , 'password required'],
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    status:{
+        type: Boolean,
+        default: true
+    }
 });
 
-module.exports = { UserType }
+const User = model('Users', UserSchema);
+
+module.exports = { User };

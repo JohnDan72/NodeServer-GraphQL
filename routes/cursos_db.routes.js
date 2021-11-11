@@ -2,7 +2,7 @@ const { Router } = require("express");
 const { graphqlHTTP } = require('express-graphql');
 
 // const { getProfesores } = require("../controllers/profesores.controller");
-const schema = require('../database/config');
+const schema = require('../graphql/schemas/main');
 
 const router = Router();
 

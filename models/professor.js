@@ -1,31 +1,25 @@
-const { GraphQLObjectType, 
-        GraphQLString,
-        GraphQLID, 
-        GraphQLBoolean, 
-        GraphQLInt,
-        GraphQLList, 
-        } = require('graphql');
-const Course = require('./mongoSchemas/course');
+const { Schema , model} = require('mongoose');
 
-
-const ProfessorType = new GraphQLObjectType({
-    name: 'Professor',
-    fields: () => ({
-        id: {type: GraphQLID},
-        name: {type: GraphQLString},
-        age: {type: GraphQLInt},
-        status: {type: GraphQLBoolean},
-        date: {type: GraphQLString},
-        courses: {
-            // se realiza un require dinámico por conflicto de dependencias circulares
-            type: new GraphQLList(require('./course').CourseType),
-            resolve(parent , args){
-                // se realiza un require dinámico por conflicto de dependencias circulares
-                // return require("../database/data").courses.filter( course => course.professorId === parent.id)
-                return Course.find({status: true , professorId: parent.id})
-            }
-        }
-    })
+const ProfessorSchema = Schema({
+    name: {
+        type: String,
+        required: [true , 'Nombre obligatorio'],
+        unique: true
+    },
+    age: {
+        type: Number,
+        required: [ true , 'Edad requerida'],
+    },
+    status: {
+        type: Boolean,
+        default: true
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
 });
 
-module.exports = { ProfessorType };
+const Professor = model('Professors', ProfessorSchema); 
+
+module.exports = { Professor }

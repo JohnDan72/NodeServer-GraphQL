@@ -1,25 +1,32 @@
-const { GraphQLObjectType , GraphQLString, GraphQLID, GraphQLBoolean } = require('graphql');
-// // static data
-// const { professors } = require('../database/data');
+const { Schema, model } = require("mongoose");
 
-// models
-const Professor = require('./mongoSchemas/professor');
 
-const CourseType = new GraphQLObjectType({
-    name: 'Course',
-    fields: () => ({
-        id: {type: GraphQLID},
-        name: {type: GraphQLString},
-        language: {type: GraphQLString},
-        date: {type: GraphQLString},
-        status: { type: GraphQLBoolean},
-        professor: { //like populate
-            type: require('./professor').ProfessorType,
-            resolve(parent , args){
-                return Professor.findById( parent.professorId );
-            }
-        }
-    })
+const CourseSchema = Schema({
+    name: {
+        type: String,
+        required: [ true , 'Nombre obligatorio'],
+        unique: true
+    },
+    language: {
+        type: String,
+        required: [ true , 'Language obligatorio'],
+    },
+    date: {
+        type: Date, 
+        default: Date.now 
+    },
+    professorId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Professors',
+        required: [ true , 'Foreign key error']
+    },
+    status: {
+        type: Boolean,
+        default: true
+    }
+
 });
 
-module.exports = { CourseType };
+const Course = model('Courses', CourseSchema);
+
+module.exports = { Course }
