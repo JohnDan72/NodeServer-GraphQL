@@ -2,8 +2,15 @@ const { Course } = require("../models/course");
 const { Professor } = require("../models/professor");
 
 // GET course by Id
-const getCourseById = async (parent , args) => {
+const getCourseById = async (parent , args , context) => {
     try {
+        if(!context.user.auth){
+            return {
+                ok: false,
+                errors: user.errors
+            }
+        }
+
         const course = await Course.findOne({_id: args.id , status:true});
 
         if(!course){
@@ -29,8 +36,15 @@ const getCourseById = async (parent , args) => {
 }
 
 // GET all courses
-const getAllCourses = async (parent , args) => {
+const getAllCourses = async (parent , args , context) => {
     try {
+        if(!context.user.auth){
+            return {
+                ok: false,
+                errors: context.user.errors
+            }
+        }
+
         const [ courses , total ] = await Promise.all([
             Course.find({status: true}),
             Course.countDocuments({status: true})

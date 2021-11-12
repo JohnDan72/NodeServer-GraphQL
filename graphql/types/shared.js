@@ -70,10 +70,25 @@ const UpdatedDataType = new GraphQLObjectType({
     })
 });
 
+// type de login
+const LoginResponseType = new GraphQLObjectType({
+    name: 'LoginResponse',
+    fields: () => ({
+        ok: {type: GraphQLBoolean},
+        msg: {type: GraphQLString},
+        token: {type: GraphQLString},
+        errors: {
+            type: new GraphQLList(MessageType)
+        },
+        user: { type: require('./user').UserType},
+    })
+})
+
 module.exports = { 
     MessageType,
     ReadOneResponseType,
     ReadAllResponseType,
     CreatedUpdatedResponseType,
-    UpdatedDataType
+    UpdatedDataType,
+    LoginResponseType,
 }

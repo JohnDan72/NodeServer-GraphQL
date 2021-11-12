@@ -6,12 +6,13 @@ const { Professor } = require("../../models/professor");
 const { User } = require("../../models/user");
 
 // types
-const { ReadOneResponseType, ReadAllResponseType, CreatedUpdatedResponseType, UpdatedDataType } = require("../types/shared");
+const { ReadOneResponseType, ReadAllResponseType, CreatedUpdatedResponseType, UpdatedDataType, LoginResponseType } = require("../types/shared");
 
 // controller functions
 const { getCourseById, getAllCourses, createCourse, updateCourse, deleteCourse } = require("../../controllers/course.controller");
 const { getProfessorById, getAllProfessors, createProfessor, updateProfessor, deleteProfessor } = require("../../controllers/profesores.controller");
 const { getUserById, getAllUsers, createUser, updateUser, deleteUser } = require("../../controllers/users.controller");
+const { login } = require("../../controllers/login.controller");
 
 
 const RootQuery = new GraphQLObjectType({
@@ -29,8 +30,9 @@ const RootQuery = new GraphQLObjectType({
         },
         courses: {
             type: ReadAllResponseType,
-            resolve(parent, args){
-                return getAllCourses( parent , args );
+            resolve(parent, args , context){
+
+                return getAllCourses( parent , args , context);
             }
         },
         // professors
@@ -201,6 +203,17 @@ const Mutation = new GraphQLObjectType({
             type: UpdatedDataType,
             resolve(parent , args){
                 return User.updateMany({status: false}, {status: true});
+            }
+        },
+        // LOGIN OPERATIONS
+        login: {
+            type: LoginResponseType,
+            args:{
+                email: {type: GraphQLString},
+                password: {type: GraphQLString},
+            },
+            resolve(parent,args){
+                return login(parent,args);
             }
         }
     }

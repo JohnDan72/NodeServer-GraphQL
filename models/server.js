@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { dbConnection } = require('../database/mongodb');
+// const { validarJWT } = require('../middlewares/validacionJWT');
 
 class Server{
     constructor(){
@@ -14,10 +15,10 @@ class Server{
         this.routes();
     }
 
-    middlewares(){
+    async middlewares(){
         this.app.use(cors()); // cors
         this.app.use(express.json()); // parse to json
-        this.app.use(express.static("public")); // public dir static
+        this.app.use(express.static("public")); // public dir static 
     }
 
     async conectarMongoDB(){
